@@ -144,6 +144,8 @@ GameObject:
   - component: {fileID: 4852768672647048669}
   - component: {fileID: -8625108858595633716}
   - component: {fileID: 8303591326023180089}
+  - component: {fileID: 205950256919832735}
+  - component: {fileID: 5283697727044630700}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -326,6 +328,34 @@ MonoBehaviour:
   interactableLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &205950256919832735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305602009681413628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b12ab8e3df3d854abb6544f9ea06619, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5283697727044630700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305602009681413628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a725e76bac7e3a5449b3d44f3672b3f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerCamera: {fileID: 3616684247602848699}
+  vehicle: {fileID: 0}
+  driverSeat: {fileID: 0}
 --- !u!1 &2855936976915754255
 GameObject:
   m_ObjectHideFlags: 0

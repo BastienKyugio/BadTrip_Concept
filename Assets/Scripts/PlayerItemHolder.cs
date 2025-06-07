@@ -1,13 +1,32 @@
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(Inventory))]
 public class PlayerItemHolder : NetworkBehaviour
 {
     [SerializeField] private Transform interactionPoint;
     [SerializeField] private float interactionRange = 2f;
     [SerializeField] private LayerMask interactableLayer;
 
-    private string heldItem = "";
+    private Inventory inventory;
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            Debug.Log($"[PlayerItemHolder] NetworkObject ID = {NetworkObjectId}, IsOwner: {IsOwner}, IsClient: {IsClient}, IsServer: {IsServer}");
+            Debug.Log($"[Player] Je suis le joueur local avec ClientId = {OwnerClientId}");
+            inventory = GetComponent<Inventory>();
+
+            // Relier à l’UI locale
+            var inventoryUI = FindAnyObjectByType<InventoryUI>();
+            if (inventoryUI != null)
+            {
+                inventoryUI.SetInventory(inventory);
+                Debug.Log("👜 Inventory UI relié au joueur local.");
+            }
+        }
+    }
 
     void Update()
     {
@@ -26,15 +45,27 @@ public class PlayerItemHolder : NetworkBehaviour
             var interactable = hit.collider.GetComponent<InteractableItem>();
             if (interactable != null)
             {
-                interactable.Interact(gameObject);
+                interactable.InteractServerRpc();
             }
         }
     }
 
-    public void GiveItem(string itemName)
+    [ClientRpc]
+    public void GiveItemToOwnerClientRpc(string itemName)
     {
-        heldItem = itemName;
-        Debug.Log($"{OwnerClientId} a ramass� : {itemName}");
-        // Plus tard : afficher l�objet dans la main ou ajouter � un inventaire
+        Debug.Log($"[CLIENT RPC] reçu GiveItemToOwnerClientRpc({itemName}) sur client {NetworkManager.Singleton.LocalClientId}");
+
+        if (!IsOwner)
+        {
+            Debug.Log($"[CLIENT] Je ne suis pas Owner, donc j'ignore");
+            return;
+        }
+
+        if (inventory == null)
+            inventory = GetComponent<Inventory>();
+
+        Debug.Log($"[ClientRpc] reçu sur client {NetworkManager.Singleton.LocalClientId}, ajout : {itemName}");
+        inventory.AddItem(itemName);
     }
+
 }

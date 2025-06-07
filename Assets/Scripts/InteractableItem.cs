@@ -5,27 +5,47 @@ public class InteractableItem : NetworkBehaviour
 {
     public string itemName = "Item";
 
-    [SerializeField] private GameObject visual; // mesh à désactiver lors du ramassage
+    [SerializeField] private GameObject visual;
 
-    private bool isTaken = false;
+    private NetworkVariable<bool> isTaken = new NetworkVariable<bool>(false);
 
-    public void Interact(GameObject player)
+    private void Update()
     {
-        if (isTaken) return;
+        visual.SetActive(!isTaken.Value);
+    }
 
-        // Si on veut limiter au joueur propriétaire
-        if (!IsServer) return;
+    [ServerRpc(RequireOwnership = false)]
+    public void InteractServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        Debug.Log($"[SERVER] InteractServerRpc appelé par client {serverRpcParams.Receive.SenderClientId}");
 
-        isTaken = true;
+        if (isTaken.Value) return;
 
-        // Désactivation visuelle en réseau
-        visual.SetActive(false);
+        isTaken.Value = true;
 
-        // Informer le joueur (tu pourras connecter à l’inventaire plus tard)
+        ulong senderClientId = serverRpcParams.Receive.SenderClientId;
+
+        var player = NetworkManager.Singleton.ConnectedClients[senderClientId].PlayerObject;
+        if (player == null)
+        {
+            Debug.LogError($"[SERVER] PlayerObject introuvable pour client {senderClientId}");
+            return;
+        }
+
         var holder = player.GetComponent<PlayerItemHolder>();
+        if (holder == null)
+        {
+            Debug.LogError($"[SERVER] PlayerItemHolder manquant sur PlayerObject de client {senderClientId}");
+            return;
+        }
         if (holder != null)
         {
-            holder.GiveItem(itemName);
+            // Appelle une méthode SERVER sur ce joueur, qui va envoyer un ClientRpc depuis SON script
+
+            holder.GiveItemToOwnerClientRpc(itemName);
+            Debug.Log($"[SERVER] Appel de GiveItemToOwnerClientRpc sur le client {senderClientId}");
+
         }
     }
+
 }

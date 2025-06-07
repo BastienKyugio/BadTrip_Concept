@@ -99,7 +99,11 @@ public class FirstPersonController : NetworkBehaviour
 
         currentMovement.y = verticalVelocity;
 
-        characterController.Move(currentMovement * Time.deltaTime);
+        if (characterController.enabled)
+        {
+            characterController.Move(currentMovement * Time.deltaTime);
+        }
+
     }
 
 
